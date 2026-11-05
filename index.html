@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhD Outreach Dashboard — Majid Khan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#0b0f1a; --panel:#121829; --panel2:#171f35; --line:#232d4a;
+  --text:#e8ecf7; --muted:#8b95b2; --dim:#5d6785;
+  --pos:#34d399; --apply:#60a5fa; --neg:#f87171; --auto:#a78bfa; --unc:#94a3b8;
+  --accent1:#7c5cff; --accent2:#22d3ee;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;
+  background-image:radial-gradient(1200px 600px at 10% -10%,rgba(124,92,255,.18),transparent 60%),
+                   radial-gradient(900px 500px at 100% 0%,rgba(34,211,238,.12),transparent 60%);
+  background-attachment:fixed;min-height:100vh}
+.wrap{max-width:1200px;margin:0 auto;padding:40px 24px 80px}
+header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:36px}
+.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);font-weight:600}
+h1{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.02em;margin-top:6px;
+  background:linear-gradient(90deg,#fff 0%,#c7c2ff 60%,#8be9fb 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--muted);margin-top:6px;max-width:620px}
+.stamp{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);border:1px solid var(--line);
+  padding:8px 12px;border-radius:999px;background:rgba(18,24,41,.6)}
+.stamp b{color:var(--pos)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin-bottom:22px}
+.kpi{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:18px 18px 16px;position:relative;overflow:hidden}
+.kpi::after{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--c,var(--accent1))}
+.kpi .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.kpi .val{font-size:34px;font-weight:800;letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
+.kpi .note{font-size:12.5px;color:var(--dim);margin-top:2px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
+.card h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
+.card .hint{font-size:12.5px;color:var(--muted);margin:2px 0 16px}
+.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}.s12{grid-column:span 12}
+@media(max-width:900px){.s4,.s5,.s6,.s7,.s8{grid-column:span 12}}
+/* funnel */
+.funnel{display:flex;flex-direction:column;gap:10px}
+.frow{display:grid;grid-template-columns:150px 1fr 70px;align-items:center;gap:12px;font-size:13.5px}
+.frow .bar{height:30px;border-radius:9px;background:var(--panel2);overflow:hidden}
+.frow .bar i{display:block;height:100%;border-radius:9px;background:var(--c);width:0;transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.frow .n{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.frow .n small{display:block;font-weight:500;color:var(--dim);font-size:11px}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:14px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.donutWrap{position:relative;height:240px}
+.donutCenter{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.donutCenter b{font-size:30px;font-weight:800}
+.donutCenter span{font-size:12px;color:var(--muted)}
+.chartBox{position:relative;height:300px}
+/* leads */
+.leads{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.lead{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;transition:transform .2s,border-color .2s}
+.lead:hover{transform:translateY(-2px);border-color:#34507a}
+.lead .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.lead .uni{font-weight:700;font-size:14.5px}
+.tag{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.tag.hot{background:rgba(52,211,153,.14);color:var(--pos)}
+.tag.warm{background:rgba(96,165,250,.14);color:var(--apply)}
+.lead .country{font-size:12px;color:var(--muted)}
+.lead .note{font-size:13.5px;color:#cdd3e6}
+.lead .next{font-size:12.5px;color:var(--accent2);font-weight:600;margin-top:auto}
+.lead .next::before{content:"→ "}
+/* table */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--panel2);color:var(--muted);font:inherit;font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:999px;cursor:pointer}
+.chip.on{color:#fff;border-color:var(--c,var(--accent1));background:color-mix(in srgb,var(--c,var(--accent1)) 22%,transparent)}
+input.search{flex:1;min-width:180px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;outline:none}
+input.search:focus{border-color:var(--accent1)}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{text-align:left;color:var(--dim);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;padding:10px 8px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel)}
+.tbl td{padding:10px 8px;border-bottom:1px solid rgba(35,45,74,.6)}
+.tbl tr:hover td{background:rgba(124,92,255,.05)}
+.scroll{max-height:460px;overflow:auto;border-radius:10px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted)}
+.insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.ins{border-left:3px solid var(--c);padding:6px 0 6px 14px}
+.ins b{display:block;font-size:14px;margin-bottom:2px}
+.ins span{font-size:13px;color:var(--muted)}
+footer{margin-top:28px;color:var(--dim);font-size:12px;text-align:center}
+.fade{opacity:0;transform:translateY(10px);animation:in .7s forwards}
+@keyframes in{to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="fade">
+    <div>
+      <div class="eyebrow">PhD Supervisor Outreach · Oct – Nov 2026</div>
+      <h1>Outreach Dashboard</h1>
+      <p class="sub">Cold emails to professors across 10 countries. How many were sent, who replied, and which replies are worth following up.</p>
+    </div>
+    <div class="stamp">Last synced: <b id="upd"></b></div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="grid">
+    <div class="card s7 fade" style="animation-delay:.1s">
+      <h2>Outreach funnel</h2>
+      <p class="hint">From emails sent to replies that open a door</p>
+      <div class="funnel" id="funnel"></div>
+    </div>
+    <div class="card s5 fade" style="animation-delay:.15s">
+      <h2>Reply sentiment</h2>
+      <p class="hint">Unique professors who replied</p>
+      <div class="donutWrap"><canvas id="donut"></canvas><div class="donutCenter"><b id="dTotal"></b><span>replies</span></div></div>
+      <div class="legend" id="dLegend"></div>
+    </div>
+
+    <div class="card s8 fade" style="animation-delay:.2s">
+      <h2>Replies by country</h2>
+      <p class="hint">Stacked by reply type</p>
+      <div class="chartBox"><canvas id="country"></canvas></div>
+    </div>
+    <div class="card s4 fade" style="animation-delay:.25s">
+      <h2>Why the “no”s</h2>
+      <p class="hint">Reasons given in negative replies</p>
+      <div class="chartBox"><canvas id="reasons"></canvas></div>
+    </div>
+
+    <div class="card s12 fade" style="animation-delay:.3s">
+      <h2>Replies over time</h2>
+      <p class="hint">Daily replies received, by type</p>
+      <div class="chartBox" style="height:260px"><canvas id="timeline"></canvas></div>
+    </div>
+
+    <div class="card s12 fade" style="animation-delay:.35s">
+      <h2>🔥 Positive leads — follow these up</h2>
+      <p class="hint">Professors who showed interest, offered support, or invited a formal application</p>
+      <div class="leads" id="leads"></div>
+    </div>
+
+    <div class="card s12 fade" style="animation-delay:.4s">
+      <h2>Key takeaways</h2>
+      <p class="hint">What the numbers say</p>
+      <div class="insights" id="insights"></div>
+    </div>
+
+    <div class="card s12 fade" style="animation-delay:.45s">
+      <h2>All replies</h2>
+      <p class="hint">Filter by type or search by university / country</p>
+      <div class="toolbar" id="toolbar"></div>
+      <div class="scroll"><table class="tbl"><thead><tr><th>Date</th><th>University</th><th>Country</th><th>Reply type</th><th>Detail</th></tr></thead><tbody id="rows"></tbody></table></div>
+    </div>
+  </section>
+  <footer>Built from Gmail data · Professor names and email contents are intentionally omitted.</footer>
+</div>
+
+<script src="data.js"></script>
+<script>
+const D=window.DATA, R=D.replies;
+const CAT={positive:{l:'Positive',c:'#34d399'},apply:{l:'Apply formally',c:'#60a5fa'},negative:{l:'Negative',c:'#f87171'},auto:{l:'Auto-reply',c:'#a78bfa'},unclear:{l:'Unclear',c:'#94a3b8'}};
+const cnt=k=>R.filter(r=>r.cat===k).length;
+const pos=cnt('positive'),app=cnt('apply'),neg=cnt('negative'),aut=cnt('auto'),unc=cnt('unclear');
+const human=R.length-aut, delivered=D.sent-D.bounced;
+const pct=(a,b)=>(a/b*100).toFixed(1)+'%';
+document.getElementById('upd').textContent=D.updated;
+
+const kpis=[
+ ['Emails sent',D.sent,`${D.bounced} bounced · ${delivered} delivered`,'#7c5cff'],
+ ['Replied',R.length,`${pct(R.length,delivered)} of delivered`,'#22d3ee'],
+ ['Real replies',human,`${pct(human,delivered)} human reply rate`,'#38bdf8'],
+ ['Positive',pos,`${pct(pos,human)} of real replies`,'#34d399'],
+ ['Apply formally',app,'Redirected to official route','#60a5fa'],
+ ['Negative',neg,`${pct(neg,human)} of real replies`,'#f87171'],
+ ['Auto-replies',aut,'Out of office / automated','#a78bfa'],
+];
+document.getElementById('kpis').innerHTML=kpis.map(([l,v,n,c],i)=>`<div class="kpi fade" style="--c:${c};animation-delay:${i*.05}s"><div class="lbl">${l}</div><div class="val" data-v="${v}">0</div><div class="note">${n}</div></div>`).join('');
+document.querySelectorAll('.kpi .val').forEach(el=>{const t=+el.dataset.v;let s=null;const step=ts=>{if(!s)s=ts;const p=Math.min((ts-s)/1100,1);el.textContent=Math.round(t*(1-Math.pow(1-p,3))).toLocaleString();if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)});
+
+const fun=[['Sent',D.sent,'#7c5cff'],['Delivered',delivered,'#6366f1'],['Any reply',R.length,'#22d3ee'],['Real reply',human,'#38bdf8'],['Door open (pos + apply)',pos+app,'#60a5fa'],['Positive',pos,'#34d399']];
+document.getElementById('funnel').innerHTML=fun.map(([l,v,c])=>`<div class="frow"><div>${l}</div><div class="bar"><i style="--c:${c}" data-w="${Math.max(v/D.sent*100,1.2)}"></i></div><div class="n">${v.toLocaleString()}<small>${pct(v,D.sent)}</small></div></div>`).join('');
+setTimeout(()=>document.querySelectorAll('.frow i').forEach(i=>i.style.width=i.dataset.w+'%'),150);
+
+Chart.defaults.color='#8b95b2';Chart.defaults.font.family='Inter';Chart.defaults.borderColor='rgba(35,45,74,.7)';
+const order=['positive','apply','negative','auto','unclear'].filter(k=>cnt(k));
+new Chart(donut,{type:'doughnut',data:{labels:order.map(k=>CAT[k].l),datasets:[{data:order.map(cnt),backgroundColor:order.map(k=>CAT[k].c),borderColor:'#121829',borderWidth:3,hoverOffset:6}]},options:{cutout:'70%',plugins:{legend:{display:false}},maintainAspectRatio:false}});
+dTotal.textContent=R.length;
+dLegend.innerHTML=order.map(k=>`<span><i style="--c:${CAT[k].c}"></i>${CAT[k].l} · ${cnt(k)}</span>`).join('');
+
+const countries=[...new Set(R.map(r=>r.country))].sort((a,b)=>R.filter(r=>r.country===b).length-R.filter(r=>r.country===a).length);
+new Chart(country,{type:'bar',data:{labels:countries,datasets:order.map(k=>({label:CAT[k].l,data:countries.map(c=>R.filter(r=>r.country===c&&r.cat===k).length),backgroundColor:CAT[k].c,borderRadius:4,borderSkipped:false}))},
+ options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,boxHeight:10,useBorderRadius:true,borderRadius:3}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{precision:0}}}}});
+
+const reasons={};R.filter(r=>r.reason).forEach(r=>reasons[r.reason]=(reasons[r.reason]||0)+1);
+const rk=Object.keys(reasons).sort((a,b)=>reasons[b]-reasons[a]);
+new Chart(document.getElementById('reasons'),{type:'bar',data:{labels:rk,datasets:[{data:rk.map(k=>reasons[k]),backgroundColor:'rgba(248,113,113,.75)',borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{precision:0},grid:{display:false}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+
+const days=[...new Set(R.map(r=>r.date))].sort();
+const fmt=d=>new Date(d+'T00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+new Chart(timeline,{type:'bar',data:{labels:days.map(fmt),datasets:order.map(k=>({label:CAT[k].l,data:days.map(d=>R.filter(r=>r.date===d&&r.cat===k).length),backgroundColor:CAT[k].c,borderRadius:3}))},
+ options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,boxHeight:10}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{precision:0}}}}});
+
+leads.innerHTML=D.leads.map(l=>`<div class="lead"><div class="top"><div class="uni">${l.uni}</div><span class="tag ${l.heat}">${l.heat==='hot'?'Hot lead':'Warm lead'}</span></div><div class="country">📍 ${l.country}</div><div class="note">${l.note}</div><div class="next">${l.next}</div></div>`).join('');
+
+const topC=countries[0], topN=R.filter(r=>r.country===topC).length;
+const bestRate=countries.map(c=>{const h=R.filter(r=>r.country===c&&r.cat!=='auto');return [c,h.filter(r=>r.cat==='positive'||r.cat==='apply').length,h.length]}).filter(x=>x[2]>=5).sort((a,b)=>b[1]/b[2]-a[1]/a[2])[0];
+const ins=[
+ ['#22d3ee',`${pct(human,delivered)} human reply rate`,`About 1 in ${Math.round(delivered/human)} delivered emails got a real (non-automatic) answer.`],
+ ['#34d399',`${pos+app} doors opened`,`${pos} positive replies plus ${app} invitations to apply formally — ${pct(pos+app,human)} of real replies.`],
+ ['#f87171',`"No open position" leads the no's`,`${reasons['No open position']||0} of ${neg} negatives cite no current opening — timing, not your profile.`],
+ ['#60a5fa',`Best response: ${bestRate?bestRate[0]:'—'}`,bestRate?`${bestRate[1]} of ${bestRate[2]} real replies from ${bestRate[0]} were positive or invited an application.`:''],
+ ['#a78bfa',`${topC} replied most`,`${topN} replies came from ${topC}, the largest share of any country.`],
+];
+insights.innerHTML=ins.map(([c,b,s])=>`<div class="ins" style="--c:${c}"><b>${b}</b><span>${s}</span></div>`).join('');
+
+let filt='all',q='';
+const TB=document.getElementById("toolbar");
+const chips=[['all','All',R.length,'#7c5cff'],...order.map(k=>[k,CAT[k].l,cnt(k),CAT[k].c])];
+TB.innerHTML=chips.map(([k,l,n,c])=>`<button class="chip ${k==='all'?'on':''}" data-k="${k}" style="--c:${c}">${l} (${n})</button>`).join('')+`<input class="search" placeholder="Search university or country…">`;
+TB.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{filt=b.dataset.k;TB.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));draw()});
+TB.querySelector('input').oninput=e=>{q=e.target.value.toLowerCase();draw()};
+function draw(){
+ const rows=R.filter(r=>(filt==='all'||r.cat===filt)&&(r.uni+' '+r.country).toLowerCase().includes(q)).sort((a,b)=>b.date.localeCompare(a.date));
+ document.getElementById('rows').innerHTML=rows.map(r=>`<tr><td class="mono">${fmt(r.date)}</td><td>${r.uni}</td><td>${r.country}</td><td><span class="pill" style="--c:${CAT[r.cat].c}"><i></i>${CAT[r.cat].l}</span></td><td style="color:var(--muted)">${r.reason||''}</td></tr>`).join('')||'<tr><td colspan="5" style="color:var(--dim);text-align:center;padding:24px">No matches</td></tr>';
+}
+draw();
+</script>
+</body>
+</html>
