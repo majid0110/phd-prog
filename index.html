@@ -87,6 +87,27 @@ input.search:focus{border-color:var(--accent1)}
 .ins b{display:block;font-size:14px;margin-bottom:2px}
 .ins span{font-size:13px;color:var(--muted)}
 footer{margin-top:28px;color:var(--dim);font-size:12px;text-align:center}
+/* actions & deadlines */
+.alist{display:flex;flex-direction:column;gap:8px}
+.aitem{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--c);border-radius:12px;padding:11px 14px}
+.aitem .ic{font-size:18px}
+.aitem .t{font-size:13.5px}
+.aitem .t small{display:block;color:var(--dim);font-size:11.5px;margin-top:1px}
+.due{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:999px;white-space:nowrap;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c)}
+.dl{display:grid;grid-template-columns:64px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid rgba(35,45,74,.6)}
+.dl:last-child{border-bottom:0}
+.dl .d{text-align:center;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:6px 0}
+.dl .d b{display:block;font-size:20px;font-weight:800;line-height:1.1}
+.dl .d span{font-size:11px;color:var(--muted);text-transform:uppercase}
+.dl .n{font-size:13.5px;font-weight:600}
+.dl .m{font-size:12px;color:var(--muted)}
+.st{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:middle}
+.st.confirmed{background:rgba(52,211,153,.14);color:var(--pos)}
+.st.expected,.st.check{background:rgba(251,191,36,.14);color:#fbbf24}
+.st.reminder{background:rgba(167,139,250,.14);color:var(--auto)}
+.st.past{background:rgba(148,163,184,.14);color:var(--unc)}
+.stage{font-size:11px;color:var(--muted);font-weight:600}
+.log{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
 .fade{opacity:0;transform:translateY(10px);animation:in .7s forwards}
 @keyframes in{to{opacity:1;transform:none}}
 </style>
@@ -95,9 +116,9 @@ footer{margin-top:28px;color:var(--dim);font-size:12px;text-align:center}
 <div class="wrap">
   <header class="fade">
     <div>
-      <div class="eyebrow">PhD Supervisor Outreach · Oct – Nov 2026</div>
+      <div class="eyebrow">PhD Supervisor Outreach · since Oct 2026</div>
       <h1>Outreach Dashboard</h1>
-      <p class="sub">Cold emails to professors across 10 countries. How many were sent, who replied, and which replies are worth following up.</p>
+      <p class="sub">What to do this week, which leads are alive, upcoming deadlines, and every reply so far. Updated automatically from Gmail every week.</p>
     </div>
     <div class="stamp">Last synced: <b id="upd"></b></div>
   </header>
@@ -105,6 +126,17 @@ footer{margin-top:28px;color:var(--dim);font-size:12px;text-align:center}
   <section class="kpis" id="kpis"></section>
 
   <section class="grid">
+    <div class="card s7 fade" style="animation-delay:.05s">
+      <h2>✅ Do this now</h2>
+      <p class="hint">Follow-ups, applications and checks, soonest first</p>
+      <div class="alist" id="actions"></div>
+    </div>
+    <div class="card s5 fade" style="animation-delay:.08s">
+      <h2>📅 Deadlines</h2>
+      <p class="hint">Scholarships and programs · <span style="color:#fbbf24">expected</span> dates must be verified</p>
+      <div id="deadlines"></div>
+    </div>
+
     <div class="card s7 fade" style="animation-delay:.1s">
       <h2>Outreach funnel</h2>
       <p class="hint">From emails sent to replies that open a door</p>
@@ -135,9 +167,15 @@ footer{margin-top:28px;color:var(--dim);font-size:12px;text-align:center}
     </div>
 
     <div class="card s12 fade" style="animation-delay:.35s">
-      <h2>🔥 Positive leads — follow these up</h2>
-      <p class="hint">Professors who showed interest, offered support, or invited a formal application</p>
+      <h2>🔥 Live leads</h2>
+      <p class="hint">Grouped by stage: waiting on them → you must apply → applied → later</p>
       <div class="leads" id="leads"></div>
+    </div>
+
+    <div class="card s12 fade" style="animation-delay:.38s">
+      <h2>🗒️ Update log</h2>
+      <p class="hint">What changed at each weekly sync</p>
+      <div class="log" id="log"></div>
     </div>
 
     <div class="card s12 fade" style="animation-delay:.4s">
@@ -153,7 +191,7 @@ footer{margin-top:28px;color:var(--dim);font-size:12px;text-align:center}
       <div class="scroll"><table class="tbl"><thead><tr><th>Date</th><th>University</th><th>Country</th><th>Reply type</th><th>Detail</th></tr></thead><tbody id="rows"></tbody></table></div>
     </div>
   </section>
-  <footer>Built from Gmail data · Professor names and email contents are intentionally omitted.</footer>
+  <footer>Built from Gmail data, refreshed weekly · Professor names and email contents are intentionally omitted.</footer>
 </div>
 
 <script src="data.js"></script>
@@ -167,7 +205,7 @@ const pct=(a,b)=>(a/b*100).toFixed(1)+'%';
 document.getElementById('upd').textContent=D.updated;
 
 const kpis=[
- ['Emails sent',D.sent,`${D.bounced} bounced · ${delivered} delivered`,'#7c5cff'],
+ [D.sentApprox?'Emails sent (≈)':'Emails sent',D.sent,`${D.bounced} bounced · ${delivered} delivered`,'#7c5cff'],
  ['Replied',R.length,`${pct(R.length,delivered)} of delivered`,'#22d3ee'],
  ['Real replies',human,`${pct(human,delivered)} human reply rate`,'#38bdf8'],
  ['Positive',pos,`${pct(pos,human)} of real replies`,'#34d399'],
@@ -182,26 +220,41 @@ const fun=[['Sent',D.sent,'#7c5cff'],['Delivered',delivered,'#6366f1'],['Any rep
 document.getElementById('funnel').innerHTML=fun.map(([l,v,c])=>`<div class="frow"><div>${l}</div><div class="bar"><i style="--c:${c}" data-w="${Math.max(v/D.sent*100,1.2)}"></i></div><div class="n">${v.toLocaleString()}<small>${pct(v,D.sent)}</small></div></div>`).join('');
 setTimeout(()=>document.querySelectorAll('.frow i').forEach(i=>i.style.width=i.dataset.w+'%'),150);
 
-Chart.defaults.color='#8b95b2';Chart.defaults.font.family='Inter';Chart.defaults.borderColor='rgba(35,45,74,.7)';
+const mkChart=(el,cfg)=>window.Chart?new Chart(el,cfg):null;
+if(window.Chart){Chart.defaults.color='#8b95b2';Chart.defaults.font.family='Inter';Chart.defaults.borderColor='rgba(35,45,74,.7)';}
 const order=['positive','apply','negative','auto','unclear'].filter(k=>cnt(k));
-new Chart(donut,{type:'doughnut',data:{labels:order.map(k=>CAT[k].l),datasets:[{data:order.map(cnt),backgroundColor:order.map(k=>CAT[k].c),borderColor:'#121829',borderWidth:3,hoverOffset:6}]},options:{cutout:'70%',plugins:{legend:{display:false}},maintainAspectRatio:false}});
+mkChart(donut,{type:'doughnut',data:{labels:order.map(k=>CAT[k].l),datasets:[{data:order.map(cnt),backgroundColor:order.map(k=>CAT[k].c),borderColor:'#121829',borderWidth:3,hoverOffset:6}]},options:{cutout:'70%',plugins:{legend:{display:false}},maintainAspectRatio:false}});
 dTotal.textContent=R.length;
 dLegend.innerHTML=order.map(k=>`<span><i style="--c:${CAT[k].c}"></i>${CAT[k].l} · ${cnt(k)}</span>`).join('');
 
 const countries=[...new Set(R.map(r=>r.country))].sort((a,b)=>R.filter(r=>r.country===b).length-R.filter(r=>r.country===a).length);
-new Chart(country,{type:'bar',data:{labels:countries,datasets:order.map(k=>({label:CAT[k].l,data:countries.map(c=>R.filter(r=>r.country===c&&r.cat===k).length),backgroundColor:CAT[k].c,borderRadius:4,borderSkipped:false}))},
+mkChart(country,{type:'bar',data:{labels:countries,datasets:order.map(k=>({label:CAT[k].l,data:countries.map(c=>R.filter(r=>r.country===c&&r.cat===k).length),backgroundColor:CAT[k].c,borderRadius:4,borderSkipped:false}))},
  options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,boxHeight:10,useBorderRadius:true,borderRadius:3}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{precision:0}}}}});
 
 const reasons={};R.filter(r=>r.reason).forEach(r=>reasons[r.reason]=(reasons[r.reason]||0)+1);
 const rk=Object.keys(reasons).sort((a,b)=>reasons[b]-reasons[a]);
-new Chart(document.getElementById('reasons'),{type:'bar',data:{labels:rk,datasets:[{data:rk.map(k=>reasons[k]),backgroundColor:'rgba(248,113,113,.75)',borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{precision:0},grid:{display:false}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
+mkChart(document.getElementById('reasons'),{type:'bar',data:{labels:rk,datasets:[{data:rk.map(k=>reasons[k]),backgroundColor:'rgba(248,113,113,.75)',borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{precision:0},grid:{display:false}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
 
 const days=[...new Set(R.map(r=>r.date))].sort();
 const fmt=d=>new Date(d+'T00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-new Chart(timeline,{type:'bar',data:{labels:days.map(fmt),datasets:order.map(k=>({label:CAT[k].l,data:days.map(d=>R.filter(r=>r.date===d&&r.cat===k).length),backgroundColor:CAT[k].c,borderRadius:3}))},
+mkChart(timeline,{type:'bar',data:{labels:days.map(fmt),datasets:order.map(k=>({label:CAT[k].l,data:days.map(d=>R.filter(r=>r.date===d&&r.cat===k).length),backgroundColor:CAT[k].c,borderRadius:3}))},
  options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,boxHeight:10}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{precision:0}}}}});
 
-leads.innerHTML=D.leads.map(l=>`<div class="lead"><div class="top"><div class="uni">${l.uni}</div><span class="tag ${l.heat}">${l.heat==='hot'?'Hot lead':'Warm lead'}</span></div><div class="country">📍 ${l.country}</div><div class="note">${l.note}</div><div class="next">${l.next}</div></div>`).join('');
+const STAGE={waiting:['⏳ Waiting on them',0],apply:['📝 You must apply',1],applied:['📨 Applied',2],check:['🔍 Re-check thread',3],later:['🗓️ Later',4]};
+const leadsSorted=[...D.leads].sort((a,b)=>(STAGE[a.stage]||[,9])[1]-(STAGE[b.stage]||[,9])[1]||(a.heat==='hot'?-1:1)-(b.heat==='hot'?-1:1));
+leads.innerHTML=leadsSorted.map(l=>`<div class="lead"><div class="top"><div class="uni">${l.uni}</div><span class="tag ${l.heat}">${l.heat==='hot'?'Hot lead':'Warm lead'}</span></div><div class="country">📍 ${l.country}${l.stage?` · <span class="stage">${(STAGE[l.stage]||[l.stage])[0]}</span>`:''}</div><div class="note">${l.note}</div><div class="next">${l.next}</div></div>`).join('');
+
+// actions & deadlines
+const today=new Date(new Date().toDateString());
+const daysTo=s=>Math.round((new Date(s+'T00:00')-today)/864e5);
+const dueLbl=n=>n<0?`${-n}d overdue`:n===0?'today':n===1?'tomorrow':`in ${n}d`;
+const dueCol=n=>n<0?'#f87171':n<=3?'#fbbf24':'#60a5fa';
+const AIC={followup:'✉️',apply:'📝',portal:'🌐',form:'🧾',reply:'💬'};
+const acts=(D.actions||[]).map(a=>({...a,n:daysTo(a.due)})).sort((a,b)=>a.n-b.n);
+document.getElementById('actions').innerHTML=acts.map(a=>`<div class="aitem" style="--c:${dueCol(a.n)}"><div class="ic">${AIC[a.type]||'•'}</div><div class="t">${a.text}<small>${fmt(a.due)}</small></div><span class="due">${dueLbl(a.n)}</span></div>`).join('')||'<div style="color:var(--dim)">Nothing pending 🎉</div>';
+const dls=(D.deadlines||[]).map(x=>({...x,n:daysTo(x.date)})).sort((a,b)=>a.date.localeCompare(b.date));
+document.getElementById('deadlines').innerHTML=dls.map(x=>{const dt=new Date(x.date+'T00:00');const st=x.n<0?'past':x.status;return `<div class="dl" style="${x.n<0?'opacity:.5':''}"><div class="d"><b>${dt.getDate()}</b><span>${dt.toLocaleDateString('en-GB',{month:'short'})} ${String(dt.getFullYear()).slice(2)}</span></div><div><div class="n">${x.name}<span class="st ${st}">${x.n<0?'passed':x.status}</span></div><div class="m">${x.note||''}${x.n>=0?` · ${dueLbl(x.n)}`:''}</div></div></div>`}).join('');
+document.getElementById('log').innerHTML=(D.log||[]).map(l=>`<div>• ${l}</div>`).join('');
 
 const topC=countries[0], topN=R.filter(r=>r.country===topC).length;
 const bestRate=countries.map(c=>{const h=R.filter(r=>r.country===c&&r.cat!=='auto');return [c,h.filter(r=>r.cat==='positive'||r.cat==='apply').length,h.length]}).filter(x=>x[2]>=5).sort((a,b)=>b[1]/b[2]-a[1]/a[2])[0];
