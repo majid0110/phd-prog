@@ -3,281 +3,339 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PhD Outreach Dashboard — Majid Khan</title>
+<title>PhD Passport · Majid Khan</title>
+<meta name="theme-color" content="#123F33">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,700;6..96,800&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0b0f1a; --panel:#121829; --panel2:#171f35; --line:#232d4a;
-  --text:#e8ecf7; --muted:#8b95b2; --dim:#5d6785;
-  --pos:#34d399; --apply:#60a5fa; --neg:#f87171; --auto:#a78bfa; --unc:#94a3b8;
-  --accent1:#7c5cff; --accent2:#22d3ee;
+  --cover:#123F33; --cover-deep:#0B2A22; --gold:#CDAA5A; --gold-hi:#EBD49A;
+  --paper:#E6EDE7; --paper-2:#DCE6DF; --rule:#BFD0C5;
+  --ink:#1C2B45; --muted:#56655F;
+  --green:#1D7A4E; --blue:#2350A8; --red:#B3262E; --violet:#6A4C9C; --amber:#A8661A;
+  --serif:'Bodoni Moda',Didot,'Times New Roman',serif;
+  --sans:'Barlow',system-ui,sans-serif;
+  --cond:'Barlow Condensed','Arial Narrow',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Inter,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;
-  background-image:radial-gradient(1200px 600px at 10% -10%,rgba(124,92,255,.18),transparent 60%),
-                   radial-gradient(900px 500px at 100% 0%,rgba(34,211,238,.12),transparent 60%);
-  background-attachment:fixed;min-height:100vh}
-.wrap{max-width:1200px;margin:0 auto;padding:40px 24px 80px}
-header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:36px}
-.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);font-weight:600}
-h1{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.02em;margin-top:6px;
-  background:linear-gradient(90deg,#fff 0%,#c7c2ff 60%,#8be9fb 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-.sub{color:var(--muted);margin-top:6px;max-width:620px}
-.stamp{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);border:1px solid var(--line);
-  padding:8px 12px;border-radius:999px;background:rgba(18,24,41,.6)}
-.stamp b{color:var(--pos)}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin-bottom:22px}
-.kpi{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:18px;padding:18px 18px 16px;position:relative;overflow:hidden}
-.kpi::after{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--c,var(--accent1))}
-.kpi .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
-.kpi .val{font-size:34px;font-weight:800;letter-spacing:-.02em;margin-top:6px;font-variant-numeric:tabular-nums}
-.kpi .note{font-size:12.5px;color:var(--dim);margin-top:2px}
-.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px}
-.card h2{font-size:15px;font-weight:700;letter-spacing:-.01em}
-.card .hint{font-size:12.5px;color:var(--muted);margin:2px 0 16px}
-.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}.s12{grid-column:span 12}
-@media(max-width:900px){.s4,.s5,.s6,.s7,.s8{grid-column:span 12}}
-/* funnel */
-.funnel{display:flex;flex-direction:column;gap:10px}
-.frow{display:grid;grid-template-columns:150px 1fr 70px;align-items:center;gap:12px;font-size:13.5px}
-.frow .bar{height:30px;border-radius:9px;background:var(--panel2);overflow:hidden}
-.frow .bar i{display:block;height:100%;border-radius:9px;background:var(--c);width:0;transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
-.frow .n{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
-.frow .n small{display:block;font-weight:500;color:var(--dim);font-size:11px}
-.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:14px;font-size:12.5px;color:var(--muted)}
-.legend span{display:inline-flex;align-items:center;gap:7px}
-.legend i{width:10px;height:10px;border-radius:3px;background:var(--c)}
-.donutWrap{position:relative;height:240px}
-.donutCenter{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
-.donutCenter b{font-size:30px;font-weight:800}
-.donutCenter span{font-size:12px;color:var(--muted)}
-.chartBox{position:relative;height:300px}
-/* leads */
-.leads{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
-.lead{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:8px;transition:transform .2s,border-color .2s}
-.lead:hover{transform:translateY(-2px);border-color:#34507a}
-.lead .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.lead .uni{font-weight:700;font-size:14.5px}
-.tag{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
-.tag.hot{background:rgba(52,211,153,.14);color:var(--pos)}
-.tag.warm{background:rgba(96,165,250,.14);color:var(--apply)}
-.lead .country{font-size:12px;color:var(--muted)}
-.lead .note{font-size:13.5px;color:#cdd3e6}
-.lead .next{font-size:12.5px;color:var(--accent2);font-weight:600;margin-top:auto}
-.lead .next::before{content:"→ "}
-/* table */
-.toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;align-items:center}
-.chip{border:1px solid var(--line);background:var(--panel2);color:var(--muted);font:inherit;font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:999px;cursor:pointer}
-.chip.on{color:#fff;border-color:var(--c,var(--accent1));background:color-mix(in srgb,var(--c,var(--accent1)) 22%,transparent)}
-input.search{flex:1;min-width:180px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;outline:none}
-input.search:focus{border-color:var(--accent1)}
-.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
-.tbl th{text-align:left;color:var(--dim);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;padding:10px 8px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--panel)}
-.tbl td{padding:10px 8px;border-bottom:1px solid rgba(35,45,74,.6)}
-.tbl tr:hover td{background:rgba(124,92,255,.05)}
-.scroll{max-height:460px;overflow:auto;border-radius:10px}
-.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
-.pill i{width:8px;height:8px;border-radius:50%;background:var(--c)}
-.mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted)}
-.insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
-.ins{border-left:3px solid var(--c);padding:6px 0 6px 14px}
-.ins b{display:block;font-size:14px;margin-bottom:2px}
-.ins span{font-size:13px;color:var(--muted)}
-footer{margin-top:28px;color:var(--dim);font-size:12px;text-align:center}
-/* actions & deadlines */
-.alist{display:flex;flex-direction:column;gap:8px}
-.aitem{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--c);border-radius:12px;padding:11px 14px}
-.aitem .ic{font-size:18px}
-.aitem .t{font-size:13.5px}
-.aitem .t small{display:block;color:var(--dim);font-size:11.5px;margin-top:1px}
-.due{font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:600;padding:4px 9px;border-radius:999px;white-space:nowrap;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c)}
-.dl{display:grid;grid-template-columns:64px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid rgba(35,45,74,.6)}
-.dl:last-child{border-bottom:0}
-.dl .d{text-align:center;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:6px 0}
-.dl .d b{display:block;font-size:20px;font-weight:800;line-height:1.1}
-.dl .d span{font-size:11px;color:var(--muted);text-transform:uppercase}
-.dl .n{font-size:13.5px;font-weight:600}
-.dl .m{font-size:12px;color:var(--muted)}
-.st{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:middle}
-.st.confirmed{background:rgba(52,211,153,.14);color:var(--pos)}
-.st.expected,.st.check{background:rgba(251,191,36,.14);color:#fbbf24}
-.st.reminder{background:rgba(167,139,250,.14);color:var(--auto)}
-.st.past{background:rgba(148,163,184,.14);color:var(--unc)}
-.stage{font-size:11px;color:var(--muted);font-weight:600}
-.log{font-size:12.5px;color:var(--muted);display:flex;flex-direction:column;gap:6px}
-.fade{opacity:0;transform:translateY(10px);animation:in .7s forwards}
-@keyframes in{to{opacity:1;transform:none}}
+html{background:#2A3330}
+body{font-family:var(--sans);color:var(--ink);font-size:16px;line-height:1.55;
+  background:radial-gradient(1200px 700px at 50% -200px,#3a4743,#222a27 70%);min-height:100vh;padding:28px 14px 60px}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:2px}
+.book{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+
+/* ---------- cover ---------- */
+.cover{position:relative;background:
+   radial-gradient(120% 90% at 30% 10%,#1a5242 0%,var(--cover) 45%,var(--cover-deep) 100%);
+  border-radius:14px 22px 22px 14px;padding:54px 28px 46px;text-align:center;color:var(--gold);
+  box-shadow:inset 10px 0 18px -8px rgba(0,0,0,.55),inset 0 0 0 1px rgba(255,255,255,.04),0 30px 60px -25px rgba(0,0,0,.7);
+  overflow:hidden}
+.cover::before{content:"";position:absolute;inset:0;opacity:.18;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>")}
+.cover::after{content:"";position:absolute;left:18px;top:0;bottom:0;width:2px;background:rgba(0,0,0,.25);box-shadow:1px 0 0 rgba(255,255,255,.05)}
+.cover .country{font-family:var(--serif);font-weight:700;font-size:15px;letter-spacing:.32em;opacity:.9}
+.crest{width:132px;height:132px;margin:26px auto 22px;display:block;filter:drop-shadow(0 1px 0 rgba(0,0,0,.5))}
+.cover h1{font-family:var(--serif);font-weight:800;font-size:clamp(46px,11vw,78px);line-height:.95;letter-spacing:.02em;
+  background:linear-gradient(100deg,var(--gold) 0%,var(--gold-hi) 45%,var(--gold) 55%,#a88638 100%);background-size:250% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;animation:foil 5s ease-in-out 1 .4s both}
+@keyframes foil{from{background-position:100% 0}to{background-position:0 0}}
+.cover .holder{font-family:var(--serif);font-size:20px;margin-top:14px;color:var(--gold-hi)}
+.cover .chip{width:46px;height:30px;margin:30px auto 0;border:1.5px solid var(--gold);border-radius:6px;position:relative;opacity:.85}
+.cover .chip::before,.cover .chip::after{content:"";position:absolute;left:8px;right:8px;top:50%;height:1.5px;background:var(--gold)}
+.cover .chip::after{left:50%;right:auto;top:6px;bottom:6px;width:1.5px;height:auto}
+.cover .synced{font-family:var(--cond);font-size:15px;letter-spacing:.04em;margin-top:18px;color:#d9c48c}
+
+/* ---------- page ---------- */
+.page{position:relative;background-color:var(--paper);border-radius:6px 10px 10px 6px;padding:34px 30px 46px;
+  box-shadow:inset 14px 0 22px -16px rgba(30,60,45,.35),0 20px 40px -24px rgba(0,0,0,.7);overflow:hidden;isolation:isolate}
+.page::before{content:"";position:absolute;inset:0;z-index:-1;background-image:var(--guilloche);background-size:420px 420px;opacity:.55}
+.page .num{position:absolute;bottom:14px;right:22px;font-family:var(--serif);font-weight:700;font-size:15px;color:var(--muted)}
+.page h2{font-family:var(--serif);font-weight:700;font-size:30px;line-height:1.1;letter-spacing:.005em}
+.page .lede{color:var(--muted);margin:6px 0 24px;max-width:58ch}
+@media(max-width:520px){.page{padding:28px 20px 44px}.page h2{font-size:26px}}
+
+/* ---------- data page ---------- */
+.data{display:grid;grid-template-columns:150px 1fr;gap:26px;align-items:start}
+@media(max-width:560px){.data{grid-template-columns:1fr}}
+.portrait{aspect-ratio:3/4;border-radius:4px;background:linear-gradient(160deg,#cbd9d0,#b6c9bd);display:grid;place-items:center;
+  border:1px solid var(--rule);position:relative;overflow:hidden}
+.portrait span{font-family:var(--serif);font-weight:800;font-size:54px;color:rgba(28,43,69,.55)}
+.portrait::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent 0 6px,rgba(255,255,255,.12) 6px 7px)}
+@media(max-width:560px){.portrait{width:120px}}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 22px}
+.f small{display:block;font-family:var(--cond);font-weight:600;font-size:13px;color:var(--muted);letter-spacing:.02em}
+.f b{display:block;font-family:var(--cond);font-weight:700;font-size:22px;line-height:1.15;font-variant-numeric:tabular-nums}
+.f.wide{grid-column:1/-1}
+.mix{display:flex;height:12px;border-radius:2px;overflow:hidden;margin-top:6px;background:var(--paper-2)}
+.mix i{display:block;height:100%}
+.mixkey{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-family:var(--cond);font-size:14.5px;color:var(--muted)}
+.mixkey span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--c);margin-right:6px;vertical-align:1px}
+.mrz{margin:30px -30px -12px;padding:16px 30px 0;border-top:1px dashed var(--rule);font-family:var(--mono);font-size:clamp(9px,2.35vw,15px);
+  line-height:1.6;letter-spacing:.12em;color:#2d3a52;white-space:pre;overflow:hidden}
+@media(max-width:520px){.mrz{margin:26px -20px -12px;padding:14px 20px 0}}
+
+/* ---------- endorsements (actions) ---------- */
+.entries{list-style:none;display:flex;flex-direction:column}
+.entry{display:grid;grid-template-columns:76px 1fr;gap:16px;padding:13px 0;border-bottom:1px solid var(--rule)}
+.entry:last-child{border-bottom:0}
+.when{font-family:var(--cond);line-height:1.1}
+.when b{display:block;font-size:22px;font-weight:700}
+.when span{font-size:14px;font-weight:600;color:var(--c,var(--muted))}
+.entry .what{font-size:15.5px}
+.entry .kind{font-family:var(--cond);font-weight:600;font-size:13.5px;color:var(--muted)}
+.overdue{--c:var(--red)} .soon{--c:var(--amber)} .later{--c:var(--blue)}
+
+/* ---------- visas (leads) ---------- */
+.visas{display:flex;flex-direction:column;gap:16px}
+.group h3{font-family:var(--cond);font-weight:700;font-size:18px;margin:6px 0 10px;color:var(--muted)}
+.visa{position:relative;border:1.5px solid var(--v);border-radius:4px;padding:16px 18px 14px 18px;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--v) 10%,transparent),color-mix(in srgb,var(--v) 4%,transparent)),var(--paper);
+  display:grid;grid-template-columns:1fr auto;gap:4px 14px}
+.visa+.visa{margin-top:12px}
+.visa::before{content:"";position:absolute;inset:5px;border:1px dashed color-mix(in srgb,var(--v) 45%,transparent);border-radius:2px;pointer-events:none}
+.visa .uni{font-family:var(--serif);font-weight:700;font-size:19px;line-height:1.2}
+.visa .ctry{font-family:var(--cond);font-weight:600;font-size:15px;color:var(--muted)}
+.visa .note{grid-column:1/-1;font-size:14.5px;margin-top:6px}
+.visa .next{grid-column:1/-1;font-family:var(--cond);font-weight:600;font-size:16px;color:var(--v);margin-top:2px}
+.visa .mark{grid-row:1/3;grid-column:2;align-self:start;font-family:var(--cond);font-weight:800;font-size:13px;letter-spacing:.06em;
+  color:var(--v);border:2px solid var(--v);border-radius:3px;padding:3px 8px;transform:rotate(-6deg);opacity:.85;white-space:nowrap}
+.visa.hot .mark{background:color-mix(in srgb,var(--v) 12%,transparent)}
+
+/* ---------- stamps ---------- */
+.stamps{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px 6px;align-items:center;justify-items:center}
+.stamp{all:unset;cursor:pointer;display:block;width:100%;max-width:150px;aspect-ratio:1;transform:rotate(var(--r));opacity:.9;transition:transform .15s}
+.stamp:hover{transform:rotate(var(--r)) scale(1.04)}
+.stamp:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:50%}
+.stamp svg{width:100%;height:100%;overflow:visible}
+.inked .stamp{animation:thud .42s cubic-bezier(.2,1.6,.4,1) both;animation-delay:var(--d)}
+@keyframes thud{0%{opacity:0;transform:rotate(var(--r)) scale(1.9)}60%{opacity:.95}100%{opacity:.9;transform:rotate(var(--r)) scale(1)}}
+.stamps:not(.inked) .stamp{opacity:0}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:18px;font-family:var(--cond);font-size:15px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border:2px solid var(--c);border-radius:50%;margin-right:6px;vertical-align:-1px}
+
+/* country detail */
+dialog{margin:auto;border:0;padding:0;max-width:min(560px,94vw);width:100%;background:var(--paper);color:var(--ink);border-radius:8px;
+  box-shadow:0 30px 80px rgba(0,0,0,.6)}
+dialog::backdrop{background:rgba(10,20,16,.6)}
+.dlg{padding:26px 24px 18px}
+.dlg h3{font-family:var(--serif);font-size:26px;line-height:1.1}
+.dlg .sum{font-family:var(--cond);font-size:16px;color:var(--muted);margin:4px 0 14px}
+.dlg ul{list-style:none;max-height:56vh;overflow:auto}
+.dlg li{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:9px 0;border-bottom:1px solid var(--rule)}
+.dlg li small{grid-column:1/-1;color:var(--muted);font-size:13px}
+.dlg .o{font-family:var(--cond);font-weight:700;font-size:14px;color:var(--c)}
+.dlg button{margin-top:14px;font:600 16px var(--cond);background:var(--cover);color:var(--gold-hi);border:0;border-radius:4px;padding:10px 18px;cursor:pointer}
+
+/* ---------- dates ---------- */
+.dates{list-style:none}
+.date{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule)}
+.date:last-child{border-bottom:0}
+.tear{width:70px;text-align:center;border:1.5px solid var(--ink);border-radius:4px;padding:6px 0 5px;background:var(--paper);position:relative}
+.tear b{display:block;font-family:var(--serif);font-weight:800;font-size:26px;line-height:1}
+.tear span{font-family:var(--cond);font-weight:600;font-size:13.5px}
+.date .n{font-weight:600;font-size:15.5px;line-height:1.3}
+.date .m{font-size:14px;color:var(--muted)}
+.tag{font-family:var(--cond);font-weight:700;font-size:13px;margin-left:6px;color:var(--c)}
+.date.past{opacity:.45}
+
+/* ---------- observations ---------- */
+.obs{list-style:none;display:flex;flex-direction:column;gap:12px;font-size:15px}
+.obs li{padding-left:16px;border-left:2px solid var(--rule)}
+.obs time{display:block;font-family:var(--cond);font-weight:700;font-size:15px;color:var(--muted)}
+.colophon{text-align:center;color:#9fb1a9;font-size:13px;margin-top:6px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.stamps:not(.inked) .stamp{opacity:.9}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="fade">
-    <div>
-      <div class="eyebrow">PhD Supervisor Outreach · since Oct 2026</div>
-      <h1>Outreach Dashboard</h1>
-      <p class="sub">What to do this week, which leads are alive, upcoming deadlines, and every reply so far. Updated automatically from Gmail every week.</p>
-    </div>
-    <div class="stamp">Last synced: <b id="upd"></b></div>
-  </header>
+<main class="book">
 
-  <section class="kpis" id="kpis"></section>
-
-  <section class="grid">
-    <div class="card s7 fade" style="animation-delay:.05s">
-      <h2>✅ Do this now</h2>
-      <p class="hint">Follow-ups, applications and checks, soonest first</p>
-      <div class="alist" id="actions"></div>
-    </div>
-    <div class="card s5 fade" style="animation-delay:.08s">
-      <h2>📅 Deadlines</h2>
-      <p class="hint">Scholarships and programs · <span style="color:#fbbf24">expected</span> dates must be verified</p>
-      <div id="deadlines"></div>
-    </div>
-
-    <div class="card s7 fade" style="animation-delay:.1s">
-      <h2>Outreach funnel</h2>
-      <p class="hint">From emails sent to replies that open a door</p>
-      <div class="funnel" id="funnel"></div>
-    </div>
-    <div class="card s5 fade" style="animation-delay:.15s">
-      <h2>Reply sentiment</h2>
-      <p class="hint">Unique professors who replied</p>
-      <div class="donutWrap"><canvas id="donut"></canvas><div class="donutCenter"><b id="dTotal"></b><span>replies</span></div></div>
-      <div class="legend" id="dLegend"></div>
-    </div>
-
-    <div class="card s8 fade" style="animation-delay:.2s">
-      <h2>Replies by country</h2>
-      <p class="hint">Stacked by reply type</p>
-      <div class="chartBox"><canvas id="country"></canvas></div>
-    </div>
-    <div class="card s4 fade" style="animation-delay:.25s">
-      <h2>Why the “no”s</h2>
-      <p class="hint">Reasons given in negative replies</p>
-      <div class="chartBox"><canvas id="reasons"></canvas></div>
-    </div>
-
-    <div class="card s12 fade" style="animation-delay:.3s">
-      <h2>Replies over time</h2>
-      <p class="hint">Daily replies received, by type</p>
-      <div class="chartBox" style="height:260px"><canvas id="timeline"></canvas></div>
-    </div>
-
-    <div class="card s12 fade" style="animation-delay:.35s">
-      <h2>🔥 Live leads</h2>
-      <p class="hint">Grouped by stage: waiting on them → you must apply → applied → later</p>
-      <div class="leads" id="leads"></div>
-    </div>
-
-    <div class="card s12 fade" style="animation-delay:.38s">
-      <h2>🗒️ Update log</h2>
-      <p class="hint">What changed at each weekly sync</p>
-      <div class="log" id="log"></div>
-    </div>
-
-    <div class="card s12 fade" style="animation-delay:.4s">
-      <h2>Key takeaways</h2>
-      <p class="hint">What the numbers say</p>
-      <div class="insights" id="insights"></div>
-    </div>
-
-    <div class="card s12 fade" style="animation-delay:.45s">
-      <h2>All replies</h2>
-      <p class="hint">Filter by type or search by university / country</p>
-      <div class="toolbar" id="toolbar"></div>
-      <div class="scroll"><table class="tbl"><thead><tr><th>Date</th><th>University</th><th>Country</th><th>Reply type</th><th>Detail</th></tr></thead><tbody id="rows"></tbody></table></div>
-    </div>
+  <section class="cover" aria-label="Cover">
+    <div class="country">ACADEMIC JOURNEY</div>
+    <svg class="crest" viewBox="0 0 120 120" aria-hidden="true">
+      <g fill="none" stroke="currentColor" stroke-width="1.6">
+        <circle cx="60" cy="60" r="56"/><circle cx="60" cy="60" r="50" stroke-dasharray="2 3"/>
+        <circle cx="60" cy="64" r="26"/>
+        <ellipse cx="60" cy="64" rx="11" ry="26"/>
+        <path d="M34 64h52M38 51h44M38 77h44"/>
+        <path d="M60 18 28 31l32 13 32-13z" fill="currentColor" fill-opacity=".18"/>
+        <path d="M44 37v9c5 4 27 4 32 0v-9"/>
+        <path d="M89 31v14"/><circle cx="89" cy="47" r="2.4" fill="currentColor"/>
+      </g>
+    </svg>
+    <h1>PhD<br>Passport</h1>
+    <div class="holder">Majid Khan</div>
+    <div class="chip" aria-hidden="true"></div>
+    <div class="synced" id="synced"></div>
   </section>
-  <footer>Built from Gmail data, refreshed weekly · Professor names and email contents are intentionally omitted.</footer>
-</div>
+
+  <section class="page" aria-labelledby="p1">
+    <h2 id="p1">Holder's data page</h2>
+    <p class="lede">Every cold email, reply and open door since the search began.</p>
+    <div class="data">
+      <div class="portrait" aria-hidden="true"><span>MK</span></div>
+      <div class="fields" id="fields"></div>
+    </div>
+    <div class="mrz" id="mrz" aria-label="Machine readable summary"></div>
+    <div class="num">1</div>
+  </section>
+
+  <section class="page" aria-labelledby="p2">
+    <h2 id="p2">Endorsements</h2>
+    <p class="lede">What to do next, soonest first.</p>
+    <ol class="entries" id="entries"></ol>
+    <div class="num">2</div>
+  </section>
+
+  <section class="page" aria-labelledby="p3">
+    <h2 id="p3">Visas in progress</h2>
+    <p class="lede">Professors who showed interest or asked you to apply.</p>
+    <div class="visas" id="visas"></div>
+    <div class="num">3</div>
+  </section>
+
+  <section class="page" aria-labelledby="p4">
+    <h2 id="p4">Entry stamps</h2>
+    <p class="lede">One stamp per country that replied. Tap a stamp to see each reply.</p>
+    <div class="stamps" id="stamps"></div>
+    <div class="legend">
+      <span style="--c:var(--green)">Someone showed interest</span>
+      <span style="--c:var(--blue)">Asked to apply formally</span>
+      <span style="--c:var(--red)">Only declines so far</span>
+    </div>
+    <div class="num">4</div>
+  </section>
+
+  <section class="page" aria-labelledby="p5">
+    <h2 id="p5">Upcoming dates</h2>
+    <p class="lede">Scholarships and programs. Expected dates still need checking on the official site.</p>
+    <ul class="dates" id="dates"></ul>
+    <div class="num">5</div>
+  </section>
+
+  <section class="page" aria-labelledby="p6">
+    <h2 id="p6">Observations</h2>
+    <p class="lede">What changed at each weekly update.</p>
+    <ul class="obs" id="obs"></ul>
+    <div class="num">6</div>
+  </section>
+
+  <p class="colophon">Updated weekly from Gmail. Professor names and email contents are never shown.</p>
+</main>
+
+<dialog id="dlg"><div class="dlg"><h3 id="dTitle"></h3><div class="sum" id="dSum"></div><ul id="dList"></ul><button id="dClose">Close</button></div></dialog>
 
 <script src="data.js"></script>
 <script>
-const D=window.DATA, R=D.replies;
-const CAT={positive:{l:'Positive',c:'#34d399'},apply:{l:'Apply formally',c:'#60a5fa'},negative:{l:'Negative',c:'#f87171'},auto:{l:'Auto-reply',c:'#a78bfa'},unclear:{l:'Unclear',c:'#94a3b8'}};
-const cnt=k=>R.filter(r=>r.cat===k).length;
-const pos=cnt('positive'),app=cnt('apply'),neg=cnt('negative'),aut=cnt('auto'),unc=cnt('unclear');
-const human=R.length-aut, delivered=D.sent-D.bounced;
-const pct=(a,b)=>(a/b*100).toFixed(1)+'%';
-document.getElementById('upd').textContent=D.updated;
-
-const kpis=[
- [D.sentApprox?'Emails sent (≈)':'Emails sent',D.sent,`${D.bounced} bounced · ${delivered} delivered`,'#7c5cff'],
- ['Replied',R.length,`${pct(R.length,delivered)} of delivered`,'#22d3ee'],
- ['Real replies',human,`${pct(human,delivered)} human reply rate`,'#38bdf8'],
- ['Positive',pos,`${pct(pos,human)} of real replies`,'#34d399'],
- ['Apply formally',app,'Redirected to official route','#60a5fa'],
- ['Negative',neg,`${pct(neg,human)} of real replies`,'#f87171'],
- ['Auto-replies',aut,'Out of office / automated','#a78bfa'],
-];
-document.getElementById('kpis').innerHTML=kpis.map(([l,v,n,c],i)=>`<div class="kpi fade" style="--c:${c};animation-delay:${i*.05}s"><div class="lbl">${l}</div><div class="val" data-v="${v}">0</div><div class="note">${n}</div></div>`).join('');
-document.querySelectorAll('.kpi .val').forEach(el=>{const t=+el.dataset.v;let s=null;const step=ts=>{if(!s)s=ts;const p=Math.min((ts-s)/1100,1);el.textContent=Math.round(t*(1-Math.pow(1-p,3))).toLocaleString();if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)});
-
-const fun=[['Sent',D.sent,'#7c5cff'],['Delivered',delivered,'#6366f1'],['Any reply',R.length,'#22d3ee'],['Real reply',human,'#38bdf8'],['Door open (pos + apply)',pos+app,'#60a5fa'],['Positive',pos,'#34d399']];
-document.getElementById('funnel').innerHTML=fun.map(([l,v,c])=>`<div class="frow"><div>${l}</div><div class="bar"><i style="--c:${c}" data-w="${Math.max(v/D.sent*100,1.2)}"></i></div><div class="n">${v.toLocaleString()}<small>${pct(v,D.sent)}</small></div></div>`).join('');
-setTimeout(()=>document.querySelectorAll('.frow i').forEach(i=>i.style.width=i.dataset.w+'%'),150);
-
-const mkChart=(el,cfg)=>window.Chart?new Chart(el,cfg):null;
-if(window.Chart){Chart.defaults.color='#8b95b2';Chart.defaults.font.family='Inter';Chart.defaults.borderColor='rgba(35,45,74,.7)';}
-const order=['positive','apply','negative','auto','unclear'].filter(k=>cnt(k));
-mkChart(donut,{type:'doughnut',data:{labels:order.map(k=>CAT[k].l),datasets:[{data:order.map(cnt),backgroundColor:order.map(k=>CAT[k].c),borderColor:'#121829',borderWidth:3,hoverOffset:6}]},options:{cutout:'70%',plugins:{legend:{display:false}},maintainAspectRatio:false}});
-dTotal.textContent=R.length;
-dLegend.innerHTML=order.map(k=>`<span><i style="--c:${CAT[k].c}"></i>${CAT[k].l} · ${cnt(k)}</span>`).join('');
-
-const countries=[...new Set(R.map(r=>r.country))].sort((a,b)=>R.filter(r=>r.country===b).length-R.filter(r=>r.country===a).length);
-mkChart(country,{type:'bar',data:{labels:countries,datasets:order.map(k=>({label:CAT[k].l,data:countries.map(c=>R.filter(r=>r.country===c&&r.cat===k).length),backgroundColor:CAT[k].c,borderRadius:4,borderSkipped:false}))},
- options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,boxHeight:10,useBorderRadius:true,borderRadius:3}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{precision:0}}}}});
-
-const reasons={};R.filter(r=>r.reason).forEach(r=>reasons[r.reason]=(reasons[r.reason]||0)+1);
-const rk=Object.keys(reasons).sort((a,b)=>reasons[b]-reasons[a]);
-mkChart(document.getElementById('reasons'),{type:'bar',data:{labels:rk,datasets:[{data:rk.map(k=>reasons[k]),backgroundColor:'rgba(248,113,113,.75)',borderRadius:6}]},options:{indexAxis:'y',maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{precision:0},grid:{display:false}},y:{grid:{display:false},ticks:{font:{size:11}}}}}});
-
-const days=[...new Set(R.map(r=>r.date))].sort();
-const fmt=d=>new Date(d+'T00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'});
-mkChart(timeline,{type:'bar',data:{labels:days.map(fmt),datasets:order.map(k=>({label:CAT[k].l,data:days.map(d=>R.filter(r=>r.date===d&&r.cat===k).length),backgroundColor:CAT[k].c,borderRadius:3}))},
- options:{maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{boxWidth:10,boxHeight:10}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,ticks:{precision:0}}}}});
-
-const STAGE={waiting:['⏳ Waiting on them',0],apply:['📝 You must apply',1],applied:['📨 Applied',2],check:['🔍 Re-check thread',3],later:['🗓️ Later',4]};
-const leadsSorted=[...D.leads].sort((a,b)=>(STAGE[a.stage]||[,9])[1]-(STAGE[b.stage]||[,9])[1]||(a.heat==='hot'?-1:1)-(b.heat==='hot'?-1:1));
-leads.innerHTML=leadsSorted.map(l=>`<div class="lead"><div class="top"><div class="uni">${l.uni}</div><span class="tag ${l.heat}">${l.heat==='hot'?'Hot lead':'Warm lead'}</span></div><div class="country">📍 ${l.country}${l.stage?` · <span class="stage">${(STAGE[l.stage]||[l.stage])[0]}</span>`:''}</div><div class="note">${l.note}</div><div class="next">${l.next}</div></div>`).join('');
-
-// actions & deadlines
+(function(){
+const D=window.DATA||{replies:[],leads:[],actions:[],deadlines:[],log:[]};
+const R=D.replies||[];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const today=new Date(new Date().toDateString());
-const daysTo=s=>Math.round((new Date(s+'T00:00')-today)/864e5);
-const dueLbl=n=>n<0?`${-n}d overdue`:n===0?'today':n===1?'tomorrow':`in ${n}d`;
-const dueCol=n=>n<0?'#f87171':n<=3?'#fbbf24':'#60a5fa';
-const AIC={followup:'✉️',apply:'📝',portal:'🌐',form:'🧾',reply:'💬'};
-const acts=(D.actions||[]).map(a=>({...a,n:daysTo(a.due)})).sort((a,b)=>a.n-b.n);
-document.getElementById('actions').innerHTML=acts.map(a=>`<div class="aitem" style="--c:${dueCol(a.n)}"><div class="ic">${AIC[a.type]||'•'}</div><div class="t">${a.text}<small>${fmt(a.due)}</small></div><span class="due">${dueLbl(a.n)}</span></div>`).join('')||'<div style="color:var(--dim)">Nothing pending 🎉</div>';
-const dls=(D.deadlines||[]).map(x=>({...x,n:daysTo(x.date)})).sort((a,b)=>a.date.localeCompare(b.date));
-document.getElementById('deadlines').innerHTML=dls.map(x=>{const dt=new Date(x.date+'T00:00');const st=x.n<0?'past':x.status;return `<div class="dl" style="${x.n<0?'opacity:.5':''}"><div class="d"><b>${dt.getDate()}</b><span>${dt.toLocaleDateString('en-GB',{month:'short'})} ${String(dt.getFullYear()).slice(2)}</span></div><div><div class="n">${x.name}<span class="st ${st}">${x.n<0?'passed':x.status}</span></div><div class="m">${x.note||''}${x.n>=0?` · ${dueLbl(x.n)}`:''}</div></div></div>`}).join('');
-document.getElementById('log').innerHTML=(D.log||[]).map(l=>`<div>• ${l}</div>`).join('');
+const dOf=s=>new Date(s+'T00:00');
+const days=s=>Math.round((dOf(s)-today)/864e5);
+const short=s=>dOf(s).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+const OUT={positive:['Interested','var(--green)'],apply:['Apply formally','var(--blue)'],negative:['Declined','var(--red)'],auto:['Automatic reply','var(--violet)'],unclear:['Unclear','var(--muted)']};
+const n=k=>R.filter(r=>r.cat===k).length;
 
-const topC=countries[0], topN=R.filter(r=>r.country===topC).length;
-const bestRate=countries.map(c=>{const h=R.filter(r=>r.country===c&&r.cat!=='auto');return [c,h.filter(r=>r.cat==='positive'||r.cat==='apply').length,h.length]}).filter(x=>x[2]>=5).sort((a,b)=>b[1]/b[2]-a[1]/a[2])[0];
-const ins=[
- ['#22d3ee',`${pct(human,delivered)} human reply rate`,`About 1 in ${Math.round(delivered/human)} delivered emails got a real (non-automatic) answer.`],
- ['#34d399',`${pos+app} doors opened`,`${pos} positive replies plus ${app} invitations to apply formally — ${pct(pos+app,human)} of real replies.`],
- ['#f87171',`"No open position" leads the no's`,`${reasons['No open position']||0} of ${neg} negatives cite no current opening — timing, not your profile.`],
- ['#60a5fa',`Best response: ${bestRate?bestRate[0]:'—'}`,bestRate?`${bestRate[1]} of ${bestRate[2]} real replies from ${bestRate[0]} were positive or invited an application.`:''],
- ['#a78bfa',`${topC} replied most`,`${topN} replies came from ${topC}, the largest share of any country.`],
+/* cover + data page */
+$('synced').textContent=D.updated?`Last stamped ${D.updated}`:'';
+const human=R.length-n('auto'), open=n('positive')+n('apply');
+const fields=[
+  ['Emails sent',(D.sentApprox?'about ':'')+(D.sent||0).toLocaleString()],
+  ['Replies received',R.length.toLocaleString()],
+  ['Written by a person',human.toLocaleString()],
+  ['Doors opened',open.toLocaleString()],
+  ['Countries reached',new Set(R.map(r=>r.country)).size],
+  ['Live leads',(D.leads||[]).length],
 ];
-insights.innerHTML=ins.map(([c,b,s])=>`<div class="ins" style="--c:${c}"><b>${b}</b><span>${s}</span></div>`).join('');
+const mixOrder=['positive','apply','negative','auto','unclear'].filter(k=>n(k));
+$('fields').innerHTML=fields.map(([l,v])=>`<div class="f"><small>${l}</small><b>${v}</b></div>`).join('')+
+ `<div class="f wide"><small>How people replied</small><div class="mix" role="img" aria-label="Reply mix">${mixOrder.map(k=>`<i style="width:${n(k)/R.length*100}%;background:${OUT[k][1]}"></i>`).join('')}</div>
+  <div class="mixkey">${mixOrder.map(k=>`<span style="--c:${OUT[k][1]}">${OUT[k][0]} ${n(k)}</span>`).join('')}</div></div>`;
+const pad=(s,len)=>(s+'<'.repeat(len)).slice(0,len);
+const ymd=(D.updatedISO||'').replace(/-/g,'');
+$('mrz').textContent=pad('P<PAKKHAN<<MAJID',44)+'\n'+pad(`SENT${String(D.sent||0).padStart(5,'0')}<REPLY${String(R.length).padStart(4,'0')}<OPEN${String(open).padStart(3,'0')}<${ymd}`,44);
 
-let filt='all',q='';
-const TB=document.getElementById("toolbar");
-const chips=[['all','All',R.length,'#7c5cff'],...order.map(k=>[k,CAT[k].l,cnt(k),CAT[k].c])];
-TB.innerHTML=chips.map(([k,l,n,c])=>`<button class="chip ${k==='all'?'on':''}" data-k="${k}" style="--c:${c}">${l} (${n})</button>`).join('')+`<input class="search" placeholder="Search university or country…">`;
-TB.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{filt=b.dataset.k;TB.querySelectorAll('.chip').forEach(x=>x.classList.toggle('on',x===b));draw()});
-TB.querySelector('input').oninput=e=>{q=e.target.value.toLowerCase();draw()};
-function draw(){
- const rows=R.filter(r=>(filt==='all'||r.cat===filt)&&(r.uni+' '+r.country).toLowerCase().includes(q)).sort((a,b)=>b.date.localeCompare(a.date));
- document.getElementById('rows').innerHTML=rows.map(r=>`<tr><td class="mono">${fmt(r.date)}</td><td>${r.uni}</td><td>${r.country}</td><td><span class="pill" style="--c:${CAT[r.cat].c}"><i></i>${CAT[r.cat].l}</span></td><td style="color:var(--muted)">${r.reason||''}</td></tr>`).join('')||'<tr><td colspan="5" style="color:var(--dim);text-align:center;padding:24px">No matches</td></tr>';
+/* endorsements */
+const AK={followup:'Follow-up',apply:'Application',portal:'Check a portal',form:'Fill a form',reply:'Reply needed'};
+const acts=(D.actions||[]).map(a=>({...a,d:days(a.due)})).sort((a,b)=>a.d-b.d);
+$('entries').innerHTML=acts.map(a=>{const cls=a.d<0?'overdue':a.d<=3?'soon':'later';
+  const rel=a.d<0?`${-a.d} days late`:a.d===0?'Today':a.d===1?'Tomorrow':`In ${a.d} days`;
+  return `<li class="entry ${cls}"><div class="when"><b>${short(a.due)}</b><span>${rel}</span></div><div><div class="kind">${AK[a.type]||''}</div><div class="what">${esc(a.text)}</div></div></li>`}).join('')
+  ||'<li class="entry"><div class="what">Nothing to do right now.</div></li>';
+
+/* visas */
+const ST={waiting:['Waiting on them','PENDING','var(--amber)'],apply:['You need to apply','APPLY','var(--blue)'],applied:['Applied','SUBMITTED','var(--green)'],check:['Re-read the thread','CHECK','var(--violet)'],later:['Come back later','LATER','var(--muted)']};
+const groups=Object.keys(ST).map(k=>[k,(D.leads||[]).filter(l=>l.stage===k).sort((a,b)=>(a.heat==='hot'?-1:1)-(b.heat==='hot'?-1:1))]).filter(g=>g[1].length);
+$('visas').innerHTML=groups.map(([k,ls])=>`<div class="group"><h3>${ST[k][0]} (${ls.length})</h3>${ls.map(l=>
+ `<article class="visa ${l.heat}" style="--v:${ST[k][2]}"><div><div class="uni">${esc(l.uni)}</div><div class="ctry">${esc(l.country)}${l.since?`, since ${short(l.since)}`:''}</div></div>
+  <div class="mark">${ST[k][1]}</div><div class="note">${esc(l.note)}</div><div class="next">${esc(l.next)}</div></article>`).join('')}</div>`).join('');
+
+/* stamps */
+const ISO={"Australia":"AUS","Austria":"AUT","Canada":"CAN","China":"CHN","Czechia":"CZE","Finland":"FIN","Germany":"DEU","Japan":"JPN","Netherlands":"NLD","New Zealand":"NZL","Norway":"NOR","Singapore":"SGP","South Korea":"KOR","Spain":"ESP","Sweden":"SWE","USA":"USA","Russia":"RUS","Hungary":"HUN","Italy":"ITA","Switzerland":"CHE","United Kingdom":"GBR","Saudi Arabia":"SAU","Denmark":"DNK","France":"FRA"};
+const hash=s=>[...s].reduce((h,c)=>(h*31+c.charCodeAt(0))>>>0,7);
+const countries=[...new Set(R.map(r=>r.country))].map(c=>{const rs=R.filter(r=>r.country===c);
+  return {c,rs,pos:rs.filter(r=>r.cat==='positive').length,app:rs.filter(r=>r.cat==='apply').length,
+   last:rs.map(r=>r.date).sort().pop()}}).sort((a,b)=>b.rs.length-a.rs.length);
+const inkOf=x=>x.pos?'#1D7A4E':x.app?'#2350A8':'#B3262E';
+function stampSVG(x,i){
+  const h=hash(x.c), shape=h%3, ink=inkOf(x), code=ISO[x.c]||x.c.slice(0,3).toUpperCase();
+  const id='a'+i, name=x.c.toUpperCase();
+  const tail=x.pos?`${x.pos} INTERESTED`:x.app?`${x.app} APPLY`:'DECLINED';
+  const date=dOf(x.last).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}).toUpperCase();
+  const f=`url(#rough)`;
+  if(shape===0) return `<svg viewBox="0 0 150 150"><g fill="none" stroke="${ink}" filter="${f}">
+   <circle cx="75" cy="75" r="68" stroke-width="3.2"/><circle cx="75" cy="75" r="50" stroke-width="1.6"/>
+   <path id="${id}" d="M75 75m-59 0a59 59 0 1 1 118 0a59 59 0 1 1-118 0" stroke="none"/>
+   <text fill="${ink}" stroke="none" font-family="Barlow Condensed" font-weight="700" font-size="12.5" letter-spacing="1.6"><textPath href="#${id}" startOffset="2%">${name} ✦ ${date} ✦</textPath></text>
+   <text x="75" y="70" text-anchor="middle" fill="${ink}" stroke="none" font-family="Bodoni Moda" font-weight="800" font-size="30">${x.rs.length}</text>
+   <text x="75" y="88" text-anchor="middle" fill="${ink}" stroke="none" font-family="Barlow Condensed" font-weight="700" font-size="12" letter-spacing="1">${code}</text>
+   <text x="75" y="103" text-anchor="middle" fill="${ink}" stroke="none" font-family="Barlow Condensed" font-weight="600" font-size="10.5">${tail}</text></g></svg>`;
+  if(shape===1) return `<svg viewBox="0 0 150 150"><g fill="none" stroke="${ink}" filter="${f}">
+   <rect x="10" y="30" width="130" height="90" rx="10" stroke-width="3.2"/><rect x="17" y="37" width="116" height="76" rx="6" stroke-width="1.3"/>
+   <text x="75" y="56" text-anchor="middle" fill="${ink}" stroke="none" font-family="Barlow Condensed" font-weight="800" font-size="14" letter-spacing="1.5">${name.length>14?code:name}</text>
+   <line x1="26" y1="62" x2="124" y2="62" stroke-width="1.2"/>
+   <text x="44" y="96" text-anchor="middle" fill="${ink}" stroke="none" font-family="Bodoni Moda" font-weight="800" font-size="30">${x.rs.length}</text>
+   <text x="100" y="82" text-anchor="middle" fill="${ink}" stroke="none" font-family="Barlow Condensed" font-weight="700" font-size="11.5">${date}</text>
+   <text x="100" y="98" text-anchor="middle" fill="${ink}" stroke="none" font-family="Barlow Condensed" font-weight="600" font-size="10.5">${tail}</text></g></svg>`;
+  return `<svg viewBox="0 0 150 150"><g fill="none" stroke="${ink}" filter="${f}">
+   <ellipse cx="75" cy="75" rx="70" ry="52" stroke-width="3.2"/><ellipse cx="75" cy="75" rx="62" ry="44" stroke-width="1.3" stroke-dasharray="3 2"/>
+   <text x="75" y="56" text-anchor="middle" fill="${ink}" stroke="none" font-family="Barlow Condensed" font-weight="800" font-size="11.5" letter-spacing="1.2">${code} ✈ ${date}</text>
+   <text x="75" y="88" text-anchor="middle" fill="${ink}" stroke="none" font-family="Bodoni Moda" font-weight="800" font-size="30">${x.rs.length}</text>
+   <text x="75" y="104" text-anchor="middle" fill="${ink}" stroke="none" font-family="Barlow Condensed" font-weight="600" font-size="10.5">${tail}</text></g></svg>`;
 }
-draw();
+$('stamps').innerHTML=`<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="rough"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="2.2"/></filter></svg>`+
+ countries.map((x,i)=>{const r=((hash(x.c)%23)-11);return `<button class="stamp" style="--r:${r}deg;--d:${i*70}ms" data-i="${i}" aria-label="${esc(x.c)}: ${x.rs.length} replies, ${x.pos} interested, ${x.app} asked to apply">${stampSVG(x,i)}</button>`}).join('');
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){$('stamps').classList.add('inked');io.disconnect()}}),{threshold:.2});
+io.observe($('stamps'));
+$('stamps').addEventListener('click',e=>{const b=e.target.closest('.stamp');if(!b)return;const x=countries[+b.dataset.i];
+  $('dTitle').textContent=x.c;
+  $('dSum').textContent=`${x.rs.length} replies, ${x.pos} interested, ${x.app} asked to apply`;
+  $('dList').innerHTML=[...x.rs].sort((a,b)=>b.date.localeCompare(a.date)).map(r=>`<li style="--c:${OUT[r.cat][1]}"><span>${esc(r.uni)}</span><span class="o">${OUT[r.cat][0]}</span><small>${short(r.date)}${r.reason?`, ${esc(r.reason)}`:''}</small></li>`).join('');
+  $('dlg').showModal();});
+$('dClose').onclick=()=>$('dlg').close();
+$('dlg').addEventListener('click',e=>{if(e.target===$('dlg'))$('dlg').close()});
+
+/* dates */
+const SC={confirmed:['Confirmed','var(--green)'],expected:['Expected','var(--amber)'],check:['Check','var(--amber)'],reminder:['Reminder','var(--violet)']};
+$('dates').innerHTML=(D.deadlines||[]).slice().sort((a,b)=>a.date.localeCompare(b.date)).map(x=>{const d=days(x.date),dt=dOf(x.date);
+  const st=d<0?['Passed','var(--muted)']:(SC[x.status]||[x.status,'var(--muted)']);
+  return `<li class="date ${d<0?'past':''}"><div class="tear"><b>${dt.getDate()}</b><span>${dt.toLocaleDateString('en-GB',{month:'short',year:'2-digit'})}</span></div>
+   <div><div class="n">${esc(x.name)}<span class="tag" style="--c:${st[1]}">${st[0]}</span></div><div class="m">${esc(x.note||'')}${d>=0?`${x.note?'. ':''}${d===0?'Today':`In ${d} days`}`:''}</div></div></li>`}).join('');
+
+/* observations */
+$('obs').innerHTML=(D.log||[]).map(l=>{const m=String(l).match(/^([^:]{4,20}):\s*(.*)$/);
+  return m?`<li><time>${esc(m[1])}</time>${esc(m[2])}</li>`:`<li>${esc(l)}</li>`}).join('')||'<li>No updates yet.</li>';
+
+/* guilloche paper pattern */
+(function(){let p='';for(let k=0;k<7;k++){let d='';for(let x=0;x<=420;x+=6){const y=210+Math.sin(x/420*Math.PI*4+k*.9)*(60+k*14)+Math.cos(x/420*Math.PI*6+k)*18;d+=(x?'L':'M')+x+' '+y.toFixed(1)}p+=`<path d='${d}' fill='none' stroke='%23b2c6ba' stroke-width='.7'/>`}
+ for(let k=0;k<5;k++){let d='';for(let y=0;y<=420;y+=6){const x=210+Math.sin(y/420*Math.PI*4+k*1.3)*(70+k*18);d+=(y?'L':'M')+x.toFixed(1)+' '+y}p+=`<path d='${d}' fill='none' stroke='%23c3d3c9' stroke-width='.6'/>`}
+ document.documentElement.style.setProperty('--guilloche',`url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='420'>${p}</svg>")`);})();
+})();
 </script>
 </body>
 </html>
